@@ -1,0 +1,20 @@
+[project]
+name = "cross-guild-api"
+version = "0.1.0"
+description = "FastAPI backend for cross guild server"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "fastapi[standard]<1.0.0,>=0.114.2",
+    "python-multipart<1.0.0,>=0.0.7",
+    "email-validator<3.0.0,>=2.1.0",
+    "pydantic>2.0",
+    "SQLAlchemy>2.0",
+    "alembic<2.0.0,>=1.12.1",
+    ]
+
+[tool.uv]
+dev-dependencies = [
+    "mypy<2.0.0,>=1.8.0",
+    "ruff<1.0.0,>=0.2.2",
+]
