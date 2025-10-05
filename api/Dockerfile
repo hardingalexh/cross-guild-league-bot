@@ -8,6 +8,10 @@ ENV UV_COMPILE_BYTE=1
 
 ENV UV_LINK_MODE=copy
 
+# install postgres
+RUN apt-get update && apt-get install -y \
+    libpq-dev gcc
+
 # Change the working directory to the `app` directory
 WORKDIR /app
 
