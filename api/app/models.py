@@ -10,18 +10,18 @@ class Season(SQLModel, table=True):
 
 
 class UserAchievementLink(SQLModel, table=True):
-    user_id: int = Field(
+    user_id: str = Field(
         foreign_key="user.id",
         primary_key=True,
     )
-    achievement_id: int = Field(
+    achievement_id: str = Field(
         foreign_key="achievement.id",
         primary_key=True,
     )
 
 
 class Achievement(SQLModel, table=True):
-    id: int = Field(default=None, primary_key=True)
+    id: str = Field(default=None, primary_key=True)
     name: str
     emoji: str
     season_id: int = Field(foreign_key="season.id")
@@ -33,9 +33,9 @@ class Achievement(SQLModel, table=True):
 
 
 class User(SQLModel, table=True):
-    id: int = Field(default=None, primary_key=True)
+    id: str = Field(default=None, primary_key=True)
     name: str
-    discord_id: str
+    nick: Optional[str] = None
 
     achievements: List["Achievement"] = Relationship(
         back_populates="users", link_model=UserAchievementLink
@@ -55,10 +55,11 @@ engine = create_engine(DATABASE_URL, echo=True)
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
-    newUser = User(name="ExampleUser", discord_id="123456789")
-    newSeason = Season(name="Spring 2024")
-    newAchievement = Achievement(name="First Win", emoji="🏆", season=newSeason)
-    newUser.achievements.append(newAchievement)
+
+
+def db_session():
+    with Session(engine) as session:
+        return session
 
 
 # Usage example:
