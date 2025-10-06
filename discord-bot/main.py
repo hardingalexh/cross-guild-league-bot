@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
-from ears import Ears
+from user_sync import UserSync
+from react_listener import ReactListener
 
 ## TODO: THIS ALL GOES IN AN ENV FILE
 APP_TOKEN = "MTQyMTk3Mjk0Nzk1Nzk3NzE4Mw.Gb_j5t.GJHvyCFBrcr8rFAuBMv_qKkdGeGKfSgNM_84ms"
@@ -20,7 +21,13 @@ async def on_ready():
     print("------")
     for guild in bot.guilds:
         print(f"- {guild.id} (name: {guild.name})")
-    await bot.add_cog(Ears(bot))
+        for emoji in guild.emojis:
+            print(f"  - {emoji} (name: {emoji.name})")
+    print("------")
+
+    # await bot.add_cog(UserSync(bot))
+    await bot.add_cog(ReactListener(bot))
+    print("Added cogs")
 
 
 @bot.command()

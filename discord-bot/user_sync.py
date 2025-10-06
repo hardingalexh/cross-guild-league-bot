@@ -2,13 +2,13 @@ from discord.ext import tasks, commands
 import requests
 
 
-class Ears(commands.Cog):
+class UserSync(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
-        self.printer.start()
+        self.sync.start()
 
     def cog_unload(self):
-        self.printer.cancel()
+        self.sync.cancel()
 
     async def upsert_user(self, user):
         payload = {
@@ -16,15 +16,13 @@ class Ears(commands.Cog):
             "name": user.name,
             "nick": user.nick,
         }
-        print(payload)
         r = requests.post("http://localhost:8000/user/upsert", json=payload)
-        print(r.json())
 
     @tasks.loop(seconds=5.0)
-    async def printer(self):
+    async def sync(self):
+        """Finds all users with a given role and upserts them to the database"""
         for guild in self.bot.guilds:
             print(f"Guild: {guild.name} (id: {guild.id})")
-
             ## get the role object for "League Member"
             member_role = next(
                 (role for role in guild.roles if role.name.lower() == "league member"),
@@ -32,7 +30,6 @@ class Ears(commands.Cog):
             )
             if member_role:
                 ## get user objects with given role
-
                 users_with_role = [
                     member for member in guild.members if member_role in member.roles
                 ]
@@ -41,7 +38,7 @@ class Ears(commands.Cog):
                 for user in users_with_role:
                     await self.upsert_user(user)
 
-    @printer.before_loop
-    async def before_printer(self):
+    @sync.before_loop
+    async def before_sync(self):
         print("Waiting until bot is ready...")
         await self.bot.wait_until_ready()
