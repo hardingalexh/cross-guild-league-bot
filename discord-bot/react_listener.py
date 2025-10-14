@@ -18,6 +18,9 @@ class ReactListener(commands.Cog):
         ## only if message author is from the bot
         if reaction.message.author != self.bot.user:
             return
+        ## ignore reactions from the bot itself
+        if reaction.me:
+            return
         payload = {
             "id": str(user.id),
             "name": user.name,
@@ -25,21 +28,21 @@ class ReactListener(commands.Cog):
         }
         ## default emojis are str, custom are Emoji type
         if type(reaction.emoji) is str:
-            if reaction.emoji not in self.emojis:
-                return
-            emoji = self.emojis[reaction.emoji]
+            # if reaction.emoji not in self.emojis:
+            #     return
+            emoji = reaction.emoji
         else:
             emoji = reaction.emoji.name
-
+        print(f"Handling react {action} for {emoji} by {user.name}")
         requests.post(
-            f"http://localhost:8000/user/f{action}_achievement?emoji={emoji}",
+            f"http://localhost:8000/user/{action}_achievement?emoji={emoji}",
             json=payload,
         )
 
     @commands.Cog.listener()
     async def on_reaction_add(self, reaction, user):
-        self.handle_react("add", reaction, user)
+        await self.handle_react("add", reaction, user)
 
     @commands.Cog.listener()
     async def on_reaction_remove(self, reaction, user):
-        self.handle_react("remove", reaction, user)
+        await self.handle_react("remove", reaction, user)

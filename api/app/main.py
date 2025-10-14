@@ -54,8 +54,14 @@ async def upsert_user(user: models.User) -> models.User:
         if db_user:
             db_user.name = user.name
             db_user.nick = user.nick
+            db_user.discord_avatar_url = user.discord_avatar_url
         else:
-            db_user = models.User(id=user.id, name=user.name, nick=user.nick)
+            db_user = models.User(
+                id=user.id,
+                name=user.name,
+                nick=user.nick,
+                discord_avatar_url=user.discord_avatar_url,
+            )
             session.add(db_user)
         session.commit()
         session.refresh(db_user)
@@ -77,32 +83,61 @@ async def add_achievement_to_user(user: models.User, emoji: str) -> models.User:
         )
         if not db_user or not db_achievement:
             raise HTTPException(status_code=404, detail="User or Achievement not found")
-        if db_achievement not in db_user.achievements:
-            db_user.achievements.append(db_achievement)
+        if db_achievement.id not in [
+            al.achievement_id for al in db_user.achievement_links
+        ]:
+            db_user.achievement_links.append(
+                models.UserAchievementLink(
+                    achievement_id=db_achievement.id, user_id=db_user.id
+                )
+            )
             session.add(db_user)
             session.commit()
             session.refresh(db_user)
         return db_user
 
 
-@app.post("/user/remove_achievement", response_model=models.User)
-async def remove_achievement_from_user(user: models.User, emoji: str) -> models.User:
-    """Removes an achievement from a user.
+# @app.post("/user/remove_achievement", response_model=models.User)
+# async def remove_achievement_from_user(user: models.User, emoji: str) -> models.User:
+#     """Removes an achievement from a user.
 
-    Args:
-        user (User): A user.
-        emoji (str): The emoji representing the achievement.
-    """
+#     Args:
+#         user (User): A user.
+#         emoji (str): The emoji representing the achievement.
+#     """
+#     with models.db_session() as session:
+#         db_user = session.get(models.User, user.id)
+#         db_achievement = (
+#             session.query(models.Achievement).filter_by(emoji=emoji).first()
+#         )
+#         if not db_user or not db_achievement:
+#             raise HTTPException(status_code=404, detail="User or Achievement not found")
+#         if db_achievement.id in [al.achievement_id for al in db_user.achievement_links]:
+#             db_user.achievement_links.remove(
+#                 models.UserAchievementLink(
+#                     achievement_id=db_achievement.id, user_id=db_user.id
+#                 )
+#             )
+#             session.add(db_user)
+#             session.commit()
+#             session.refresh(db_user)
+#         return db_user
+
+
+@app.get("/achievements", response_model=List[models.Achievement])
+async def get_achievements(season: int = None) -> List[models.Achievement]:
+    """Gets achievements for the latest season by default, or for a given season."""
     with models.db_session() as session:
-        db_user = session.get(models.User, user.id)
-        db_achievement = (
-            session.query(models.Achievement).filter_by(emoji=emoji).first()
+        if season is None:
+            latest_season = (
+                session.query(models.Season).order_by(models.Season.id.desc()).first()
+            )
+            if not latest_season:
+                return []
+            season_id = latest_season.id
+        else:
+            season_id = season
+        achievements = (
+            session.query(models.Achievement).filter_by(season_id=season_id).all()
         )
-        if not db_user or not db_achievement:
-            raise HTTPException(status_code=404, detail="User or Achievement not found")
-        if db_achievement in db_user.achievements:
-            db_user.achievements.remove(db_achievement)
-            session.add(db_user)
-            session.commit()
-            session.refresh(db_user)
-        return db_user
+        return achievements

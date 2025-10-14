@@ -11,11 +11,15 @@ class UserSync(commands.Cog):
         self.sync.cancel()
 
     async def upsert_user(self, user):
+        print(user.display_avatar)
         payload = {
             "id": str(user.id),
             "name": user.name,
             "nick": user.nick,
+            "discord_avatar_url": str(user.display_avatar.url) or None,
         }
+        print(payload)
+        ## TODO: handle failure
         r = requests.post("http://localhost:8000/user/upsert", json=payload)
 
     @tasks.loop(seconds=5.0)
@@ -36,6 +40,7 @@ class UserSync(commands.Cog):
                 if users_with_role:
                     print(f"Users with role '{member_role.name}':")
                 for user in users_with_role:
+                    print(user.display_avatar.url, user.name, user.nick)
                     await self.upsert_user(user)
 
     @sync.before_loop

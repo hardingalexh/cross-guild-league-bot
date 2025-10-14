@@ -36,6 +36,7 @@ class UserAchievementLink(SQLModel, table=True):
 class Achievement(SQLModel, table=True):
     id: str = Field(default=None, primary_key=True)
     name: str
+    description: str
     emoji: str
     season_id: int = Field(foreign_key="season.id")
 
@@ -51,6 +52,7 @@ class User(SQLModel, table=True):
     id: str = Field(default=None, primary_key=True)
     name: str
     nick: Optional[str] = None
+    discord_avatar_url: Optional[str] = None
     achievement_links: List[UserAchievementLink] = Relationship(
         back_populates="user", sa_relationship_kwargs={"lazy": "selectin"}
     )
