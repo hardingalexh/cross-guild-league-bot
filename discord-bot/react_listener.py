@@ -2,6 +2,8 @@ from discord.ext import commands
 import json
 import requests
 
+ROLE = "League Member"
+
 
 class ReactListener(commands.Cog):
     def __init__(self, bot):
@@ -15,26 +17,26 @@ class ReactListener(commands.Cog):
         ## only in specific channel
         if reaction.message.channel.name != "general":
             return
-        ## only if message author is from the bot
-        if reaction.message.author != self.bot.user:
-            return
         ## ignore reactions from the bot itself
-        if reaction.me:
+        if user.id == self.bot.user.id:
             return
+        ## only fro users with specific role
+        if ROLE not in [role.name for role in user.roles]:
+            return
+
         payload = {
             "id": str(user.id),
             "name": user.name,
             "nick": user.nick,
         }
+
         ## default emojis are str, custom are Emoji type
         if type(reaction.emoji) is str:
             # if reaction.emoji not in self.emojis:
-            #     return
             emoji = reaction.emoji
         else:
             emoji = reaction.emoji.name
-        print(f"Handling react {action} for {emoji} by {user.name}")
-        requests.post(
+        r = requests.post(
             f"http://localhost:8000/user/{action}_achievement?emoji={emoji}",
             json=payload,
         )

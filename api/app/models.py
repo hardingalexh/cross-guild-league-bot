@@ -38,6 +38,8 @@ class Achievement(SQLModel, table=True):
     name: str
     description: str
     emoji: str
+    max_frequency_per_user: int = (1,)
+    bounty: int = (0,)
     season_id: int = Field(foreign_key="season.id")
 
     season: Optional[Season] = Relationship(

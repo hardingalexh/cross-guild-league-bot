@@ -27,18 +27,19 @@ async def on_ready():
 async def achievements(ctx):
     achievements = requests.get("http://localhost:8000/achievements").json()
     emojis = ctx.guild.emojis
-    msg = "Available Achievements:\n"
+    msg = "# Available Achievements:\n"
     for achievement in achievements:
         # find the emoji object in the guild by name
         emoji_obj = discord.utils.get(emojis, name=achievement["emoji"])
-        msg += f"{emoji_obj if emoji_obj else achievement['emoji']} - {achievement['name']}\n"
+        msg += f"- {emoji_obj if emoji_obj else achievement['emoji']} - *{achievement['name']}*\n"
+        msg += f"  - _{achievement['description']}_\n"
     msg_obj = await ctx.send(msg)
-    # for achievement in achievements:
-    #     emoji_obj = discord.utils.get(emojis, name=achievement["emoji"])
-    #     if emoji_obj:
-    #         print("sending", emoji_obj)
-    #         await msg_obj.add_reaction(emoji_obj)
-    #         ## TODO: handle default emojis
+    for achievement in achievements:
+        emoji_obj = discord.utils.get(emojis, name=achievement["emoji"])
+        if emoji_obj:
+            await msg_obj.add_reaction(emoji_obj)
+        else:
+            await msg_obj.add_reaction(achievement["emoji"])
 
 
 @bot.command()

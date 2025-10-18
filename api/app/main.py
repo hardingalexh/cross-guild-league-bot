@@ -97,6 +97,39 @@ async def add_achievement_to_user(user: models.User, emoji: str) -> models.User:
         return db_user
 
 
+@app.post("/user/remove_achievement", response_model=models.User)
+async def remove_achievement_to_user(user: models.User, emoji: str) -> models.User:
+    """Removes an achievement from a user.
+
+    Args:
+        user (User): A user.
+        achievement (achievement): An achievement.
+    """
+    with models.db_session() as session:
+        db_user = session.query(models.User).filter_by(id=user.id).first()
+        db_achievement = (
+            session.query(models.Achievement).filter_by(emoji=emoji).first()
+        )
+        if not db_user or not db_achievement:
+            raise HTTPException(status_code=404, detail="User or Achievement not found")
+        if db_achievement.id in [al.achievement_id for al in db_user.achievement_links]:
+            link = next(
+                (
+                    al
+                    for al in db_user.achievement_links
+                    if al.achievement_id == db_achievement.id
+                ),
+                None,
+            )
+            if link:
+                db_user.achievement_links.remove(link)
+                session.delete(link)
+            session.add(db_user)
+            session.commit()
+            session.refresh(db_user)
+        return db_user
+
+
 # @app.post("/user/remove_achievement", response_model=models.User)
 # async def remove_achievement_from_user(user: models.User, emoji: str) -> models.User:
 #     """Removes an achievement from a user.

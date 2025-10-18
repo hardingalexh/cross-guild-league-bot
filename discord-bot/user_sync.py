@@ -11,14 +11,12 @@ class UserSync(commands.Cog):
         self.sync.cancel()
 
     async def upsert_user(self, user):
-        print(user.display_avatar)
         payload = {
             "id": str(user.id),
             "name": user.name,
             "nick": user.nick,
             "discord_avatar_url": str(user.display_avatar.url) or None,
         }
-        print(payload)
         ## TODO: handle failure
         r = requests.post("http://localhost:8000/user/upsert", json=payload)
 
