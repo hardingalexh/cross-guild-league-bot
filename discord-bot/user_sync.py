@@ -24,7 +24,6 @@ class UserSync(commands.Cog):
     async def sync(self):
         """Finds all users with a given role and upserts them to the database"""
         for guild in self.bot.guilds:
-            print(f"Guild: {guild.name} (id: {guild.id})")
             ## get the role object for "League Member"
             member_role = next(
                 (role for role in guild.roles if role.name.lower() == "league member"),
@@ -35,10 +34,7 @@ class UserSync(commands.Cog):
                 users_with_role = [
                     member for member in guild.members if member_role in member.roles
                 ]
-                if users_with_role:
-                    print(f"Users with role '{member_role.name}':")
                 for user in users_with_role:
-                    print(user.display_avatar.url, user.name, user.nick)
                     await self.upsert_user(user)
 
     @sync.before_loop

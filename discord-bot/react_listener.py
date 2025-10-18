@@ -3,6 +3,7 @@ import json
 import requests
 
 ROLE = "League Member"
+CHANNEL = "cross-guild-bot-test"
 
 
 class ReactListener(commands.Cog):
@@ -15,7 +16,7 @@ class ReactListener(commands.Cog):
 
     async def handle_react(self, action, reaction, user):
         ## only in specific channel
-        if reaction.message.channel.name != "general":
+        if reaction.message.channel.name != CHANNEL:
             return
         ## ignore reactions from the bot itself
         if user.id == self.bot.user.id:
