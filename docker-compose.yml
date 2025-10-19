@@ -19,11 +19,11 @@ services:
 
   discord:
     build:
-      context: ./discord-bot
+      context: ./discord
       dockerfile: Dockerfile
     working_dir: /app
     volumes:
-      - ./discord-bot:/app/
+      - ./discord:/app/
     env_file:
       - .env
     depends_on:
