@@ -1,4 +1,5 @@
 import datetime
+import os
 from typing import Optional, List
 from sqlmodel import Field, SQLModel, Relationship, create_engine, Session
 
@@ -61,11 +62,11 @@ class User(SQLModel, table=True):
 
 
 # Database connection
-POSTGRES_USER = "postgres"
-POSTGRES_PASSWORD = "example"
-POSTGRES_NAME = "postgres"
-POSTGRES_HOST = "postgres"
-POSTGRES_PORT = "5432"
+POSTGRES_USER = os.getenv("POSTGRES_USER", "postgres")
+POSTGRES_PASSWORD = os.getenv("POSTGRES_PASSWORD", "example")
+POSTGRES_NAME = os.getenv("POSTGRES_DB", "cgl_bot")
+POSTGRES_HOST = os.getenv("POSTGRES_HOST", "localhost")
+POSTGRES_PORT = os.getenv("POSTGRES_PORT", "5432")
 DATABASE_URL = f"postgresql://{POSTGRES_USER}:{POSTGRES_PASSWORD}@{POSTGRES_HOST}:{POSTGRES_PORT}/{POSTGRES_NAME}"
 
 engine = create_engine(DATABASE_URL, echo=True)

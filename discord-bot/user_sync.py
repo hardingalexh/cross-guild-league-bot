@@ -1,5 +1,8 @@
 from discord.ext import tasks, commands
 import requests
+import os
+
+API_URL = os.getenv("API_URL", "http://localhost:8000")
 
 
 class UserSync(commands.Cog):
@@ -18,7 +21,7 @@ class UserSync(commands.Cog):
             "discord_avatar_url": str(user.display_avatar.url) or None,
         }
         ## TODO: handle failure
-        r = requests.post("http://localhost:8000/user/upsert", json=payload)
+        r = requests.post(f"{API_URL}/user/upsert", json=payload)
 
     @tasks.loop(seconds=5.0)
     async def sync(self):

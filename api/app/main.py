@@ -1,10 +1,10 @@
 from fastapi import FastAPI, HTTPException
 from app import models
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 from datetime import datetime
+import os
 
-models.create_db_and_tables()
 app = FastAPI()
 
 
@@ -22,7 +22,7 @@ class AchievementLinkResponse(BaseModel):
 class UserResponse(BaseModel):
     id: str
     name: str
-    nick: str
+    nick: Optional[str] = None
     achievement_links: List[AchievementLinkResponse]
 
     class Config:

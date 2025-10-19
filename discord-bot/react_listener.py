@@ -1,9 +1,11 @@
 from discord.ext import commands
 import json
 import requests
+import os
 
-ROLE = "League Member"
-CHANNEL = "cross-guild-bot-test"
+ROLE = os.getenv("USER_ROLE", "League Member")
+CHANNEL = os.getenv("CHANNEL_NAME", "cross-guild-bot-test")
+API_URL = os.getenv("API_URL", "http://localhost:8000")
 
 
 class ReactListener(commands.Cog):
@@ -38,7 +40,7 @@ class ReactListener(commands.Cog):
         else:
             emoji = reaction.emoji.name
         r = requests.post(
-            f"http://localhost:8000/user/{action}_achievement?emoji={emoji}",
+            f"{API_URL}/user/{action}_achievement?emoji={emoji}",
             json=payload,
         )
 
