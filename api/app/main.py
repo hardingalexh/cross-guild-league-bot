@@ -3,9 +3,17 @@ from app import models
 from pydantic import BaseModel
 from typing import List, Optional
 from datetime import datetime
-import os
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.on_event("startup")
@@ -23,6 +31,7 @@ class UserResponse(BaseModel):
     id: str
     name: str
     nick: Optional[str] = None
+    discord_avatar_url: Optional[str] = None
     achievement_links: List[AchievementLinkResponse]
 
     class Config:
